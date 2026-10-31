@@ -59,6 +59,60 @@ npm run preview
 
 The `dist/` output is a static site.
 
+## Deploying to Cloudflare Pages
+
+The app is entirely static: Cloudflare serves `dist/`, and OCR still runs in each visitor's browser. No Worker, server function, or backend is required.
+
+### Cloudflare build settings
+
+| Setting | Value |
+|---|---|
+| Framework preset | Vite |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Production branch | `main` |
+| Node version | `NODE_VERSION=22` |
+
+Vite 8 requires Node `^20.19.0 || >=22.12.0`. The repo also declares this in `package.json` (`engines`) and `.nvmrc`.
+
+No additional environment variables are needed.
+
+### Git integration
+
+1. Push this repository to GitHub.
+2. In Cloudflare: **Workers & Pages → Create → Pages → Connect to Git**.
+3. Select the repository and use production branch `main`.
+4. Enter the build settings above.
+5. Add the `NODE_VERSION=22` environment variable.
+6. Save and deploy.
+
+Every push to `main` redeploys the project.
+
+### Headers and caching
+
+`public/_headers` is copied into the build output and configures:
+
+- Immutable one-year caching for Vite's hashed `/assets/*` files.
+- `X-Content-Type-Options` and `Referrer-Policy` security headers.
+
+There is no `_redirects` file because the app has a single `/` route. An SPA fallback would incorrectly serve HTML for missing assets.
+
+### Testing the deployed site
+
+The Playwright config supports a remote base URL:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://your-project.pages.dev npm run test:e2e
+```
+
+When `PLAYWRIGHT_BASE_URL` is set, Playwright skips the local dev server and runs against the deployed site.
+
+### CDN dependency
+
+The Tesseract worker/core are loaded from `cdn.jsdelivr.net`, and traineddata from `tessdata.projectnaptha.com`. Both are HTTPS endpoints with CORS support. The visitor's browser fetches them directly; Cloudflare does not proxy them.
+
+No COOP/COEP headers are needed for Tesseract.js's single-threaded wasm build.
+
 ## Tests
 
 The test suite is split into fast unit tests and browser end-to-end tests:
