@@ -59,6 +59,8 @@ npm run preview
 
 The `dist/` output is a static site.
 
+The build embeds the current commit SHA. Cloudflare Pages provides `CF_PAGES_COMMIT_SHA`, GitHub Actions builds use `GITHUB_SHA`, and local builds fall back to `git rev-parse HEAD`. If none is available the footer shows `dev`. The short hash links to the commit on GitHub, next to a link to the repository.
+
 ## Deploying to Cloudflare Pages
 
 The app is entirely static: Cloudflare serves `dist/`, and OCR still runs in each visitor's browser. No Worker, server function, or backend is required.
@@ -75,7 +77,7 @@ The app is entirely static: Cloudflare serves `dist/`, and OCR still runs in eac
 
 Vite 8 requires Node `^20.19.0 || >=22.12.0`. The repo also declares this in `package.json` (`engines`) and `.nvmrc`.
 
-No additional environment variables are needed.
+No additional environment variables are needed. The deployed commit is read automatically from `CF_PAGES_COMMIT_SHA` and shown in the footer.
 
 ### Git integration
 

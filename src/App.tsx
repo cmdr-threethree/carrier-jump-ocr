@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import DropZone from './components/DropZone'
 import RegionOverlay from './components/RegionOverlay'
 import ResultCard from './components/ResultCard'
+import { COMMIT_SHA, COMMIT_URL, REPO_URL, SHORT_COMMIT } from './lib/buildInfo'
 import { DEFAULT_REGIONS, FIELDS, cloneRegions } from './lib/constants'
 import { extractField } from './lib/extract'
 import { aspectLabel, decodeImage, detectContentTop, makeContentRect } from './lib/image'
@@ -463,8 +464,27 @@ export default function App() {
 
       <footer className="footer">
         <span>Images stay on this device.</span>
-        <span>
-          Tesseract.js loaded from CDN · region profiles saved in local storage
+        <span className="footer__meta">
+          <span>Tesseract.js loaded from CDN · region profiles saved in local storage</span>
+          <span className="footer__separator" aria-hidden="true">·</span>
+          <a
+            href={REPO_URL}
+            target="_blank"
+            rel="noreferrer noopener"
+            title="View source on GitHub"
+          >
+            GitHub
+          </a>
+          <span className="footer__separator" aria-hidden="true">·</span>
+          <a
+            className="mono"
+            href={COMMIT_URL}
+            target="_blank"
+            rel="noreferrer noopener"
+            title={`Commit ${COMMIT_SHA}`}
+          >
+            {SHORT_COMMIT}
+          </a>
         </span>
       </footer>
 

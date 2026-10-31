@@ -90,3 +90,21 @@ test('copy all shows confirmation', async ({ page }) => {
   await page.getByRole('button', { name: 'Copy all' }).click()
   await expect(page.locator('.toast')).toContainText('Copied all values')
 })
+
+test('footer links to the repository and deployed commit', async ({ page }) => {
+  await page.goto('/')
+
+  const repoLink = page.locator('.footer a', { hasText: 'GitHub' })
+  await expect(repoLink).toHaveAttribute(
+    'href',
+    'https://github.com/cmdr-threethree/carrier-jump-ocr',
+  )
+
+  const commitLink = page.locator('.footer a.mono')
+  await expect(commitLink).toBeVisible()
+  await expect(commitLink).toHaveText(/^(?:[0-9a-f]{7}|dev)$/)
+  await expect(commitLink).toHaveAttribute(
+    'href',
+    /^https:\/\/github\.com\/cmdr-threethree\/carrier-jump-ocr(?:\/commit\/[0-9a-f]+)?$/,
+  )
+})
