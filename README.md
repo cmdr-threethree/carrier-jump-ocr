@@ -122,6 +122,7 @@ tests/
   fixtures/
     image1.png
     image2.png
+    image3.png
   unit/
     parse.test.ts
     image.test.ts
@@ -160,12 +161,12 @@ npm run test:e2e
 
 Playwright starts the Vite dev server automatically, or reuses one already running on port `4173`. The e2e suite covers:
 
-- Exact extraction from both fixtures.
+- Exact extraction from all fixtures, including a localized HUD image.
 - Paste, file-picker upload, and drag-and-drop.
 - Invalid-file error handling.
 - Region calibration, persistence, reset, and re-run.
 - Copy confirmation.
-- 10 resolution/format/color variants per fixture: 720p, 1080p, 1440p, 4K, windowed/native content, PNG/JPEG/WebP, grayscale, and hue-shifted HUD.
+- 10 resolution/format/color variants per windowed fixture: 720p, 1080p, 1440p, 4K, windowed/native content, PNG/JPEG/WebP, grayscale, and hue-shifted HUD.
 
 ### Everything
 

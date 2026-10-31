@@ -1,6 +1,6 @@
 import { buildVariantCanvases, cropLastWord, cropWordBox, prepareVariants } from './preprocess'
 import { recognizeDigits, recognizeVariant, recognizeWithWords } from './ocr'
-import { parseName, parseTimer } from './parse'
+import { parseName, parseTimer, stripTrailingNoise } from './parse'
 import type { ContentRect, FieldDef, FieldResult, RegionRect } from './types'
 
 interface Candidate {
@@ -36,11 +36,25 @@ function makeCropPreview(source: HTMLCanvasElement): string {
 
 /**
  * Several preprocessing variants often disagree by one character. Boost values
- * that multiple variants agree on, and strip a noisy leading token when the
- * rest of the value is repeated elsewhere (e.g. "IV HD 105341" -> "HD 105341").
+ * that multiple variants agree on, and strip a noisy leading or trailing token
+ * when the rest of the value is repeated elsewhere (e.g. "IV HD 105341" or
+ * "HIP 58832 T" -> "HIP 58832").
  */
 function applyAgreement(candidates: Candidate[]) {
   if (candidates.length === 0) return
+
+  const knownValues = new Set(
+    candidates.map((candidate) => candidate.value).filter(Boolean),
+  )
+  for (const candidate of candidates) {
+    if (!candidate.value) continue
+    const cleaned = stripTrailingNoise(candidate.value, candidate.raw, knownValues)
+    if (cleaned !== candidate.value) {
+      candidate.value = cleaned
+      candidate.status = 'ok'
+      candidate.note = 'Trailing noise removed'
+    }
+  }
 
   const tally = new Map<string, { count: number; confidence: number }>()
   for (const candidate of candidates) {

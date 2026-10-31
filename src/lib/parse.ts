@@ -67,6 +67,32 @@ export function parseTimer(raw: string, maxHours = 99): ParseResult {
   return { value: raw.trim(), status: 'review', note: 'Could not read a timer' }
 }
 
+/**
+ * A generous name region can include the start of the next HUD section. OCR
+ * sometimes reads that fragment as a short trailing token (e.g. the localized
+ * "Next jump" label turns "HIP 58832" into "HIP 58832 T"). Only drop the token
+ * when the OCR line shows an unusually wide gap before it and another
+ * preprocessing variant already returned the exact base name. Legitimate names
+ * such as "Gliese 667 C" keep their normal single-space suffix.
+ */
+export function stripTrailingNoise(
+  value: string,
+  raw: string,
+  knownValues: Iterable<string>,
+): string {
+  const match = value.match(/^(.+\d)\s+([A-Za-z]{1,2})$/)
+  if (!match) return value
+
+  const trailing = raw.trimEnd().match(/\s{3,}([A-Za-z]{1,2})$/)
+  if (!trailing || trailing[1] !== match[2]) return value
+
+  const base = match[1].trim()
+  for (const known of knownValues) {
+    if (known === base) return base
+  }
+  return value
+}
+
 export function parseName(raw: string): ParseResult {
   const value = raw
     .replace(/[^A-Za-z0-9 +\-]/g, ' ')

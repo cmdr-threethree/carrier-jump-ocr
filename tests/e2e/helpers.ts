@@ -2,11 +2,12 @@ import { expect, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
-export type FixtureName = 'image1.png' | 'image2.png'
+export type FixtureName = 'image1.png' | 'image2.png' | 'image3.png'
 
 export const EXPECTED_VALUES: Record<FixtureName, string[]> = {
   'image1.png': ['6:49:40', '0:15:30', 'HD 104495', 'HD 105341'],
   'image2.png': ['8:30:25', '0:13:45', 'HD 105341', 'HIP 58832'],
+  'image3.png': ['15:16:54', '0:16:16', 'HIP 58832', 'HD 105341'],
 }
 
 export interface ImageVariant {

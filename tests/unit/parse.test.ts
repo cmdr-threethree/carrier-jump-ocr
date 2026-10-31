@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseName, parseTimer } from '../../src/lib/parse'
+import { parseName, parseTimer, stripTrailingNoise } from '../../src/lib/parse'
 
 describe('parseTimer', () => {
   it('accepts a normal H:MM:SS value', () => {
@@ -70,5 +70,37 @@ describe('parseName', () => {
 
   it('flags very long names as possibly clipped', () => {
     expect(parseName('A'.repeat(60)).status).toBe('review')
+  })
+})
+
+describe('stripTrailingNoise', () => {
+  it('drops a short trailing token when the raw line has a wide gap', () => {
+    const values = ['HIP 58832 T', 'HIP 58832', 'HIP 58832 CT']
+    expect(stripTrailingNoise('HIP 58832 T', 'HIP 58832        T', values)).toBe(
+      'HIP 58832',
+    )
+    expect(stripTrailingNoise('HIP 58832 CT', 'HIP 58832        CT', values)).toBe(
+      'HIP 58832',
+    )
+  })
+
+  it('leaves a trailing token alone when no variant read the base name', () => {
+    expect(
+      stripTrailingNoise(
+        'HIP 58832 T',
+        'HIP 58832        T',
+        ['HIP 58832 T', 'HIP 58832 CT'],
+      ),
+    ).toBe('HIP 58832 T')
+  })
+
+  it('keeps legitimate short suffixes after a normal space', () => {
+    expect(stripTrailingNoise('Gliese 667 C', 'Gliese 667 C', ['Gliese 667'])).toBe(
+      'Gliese 667 C',
+    )
+  })
+
+  it('does not touch names without a numeric suffix', () => {
+    expect(stripTrailingNoise('Rigel T', 'Rigel       T', ['Rigel'])).toBe('Rigel T')
   })
 })
